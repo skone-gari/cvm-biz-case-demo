@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CVM Demo</title>
+<style>
+:root{
+ --ink:#102a43;--muted:#6b7f93;--line:#dbe7f2;--soft:#f6f9fc;--blue:#2563a6;
+ --blue2:#eaf3fb;--blue3:#d8eafb;--navy:#123f6d;--green:#18794e;--greenbg:#e9f7f0;
+ --red:#b4233a;--redbg:#fff1f3;--amber:#9a6700;--amberbg:#fff7e5;
+}
+*{box-sizing:border-box}body{margin:0;background:#f4f8fb;color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:1440px;margin:0 auto;min-height:100vh;background:#fff;box-shadow:0 0 50px rgba(35,72,108,.08)}
+header{height:66px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:24px}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.4px;color:#113d69}.product{font-weight:700;color:#3571aa;padding-left:20px;border-left:1px solid #cbdbea}
+.spacer{flex:1}.pill{font-size:12px;color:#47647e;border:1px solid #cfdfed;border-radius:8px;padding:8px 11px;background:#fafcfe}
+main{padding:26px 28px 32px}.bar{display:flex;align-items:center;margin-bottom:20px;gap:14px}.bar h1{font-size:20px;margin:0;font-weight:720;letter-spacing:-.25px}
+.claim{font-size:12px;color:var(--muted)}.controls{margin-left:auto;display:flex;gap:8px}
+button{border:1px solid #c8d9e8;background:#fff;color:#264a6b;border-radius:8px;padding:9px 13px;font-weight:650;cursor:pointer}
+button:hover{background:#f5f9fc}.primary{background:#245f97;color:#fff;border-color:#245f97}.primary:hover{background:#1c507f}
+.danger{color:#a1263a;border-color:#e5b9c0;background:#fff8f9}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.panel.cvm{border-color:#c4dbed}
+.panel-head{height:54px;padding:0 18px;display:flex;align-items:center;border-bottom:1px solid var(--line);background:#fafcfe}
+.cvm .panel-head{background:#f1f7fc}.panel-head strong{font-size:14px}.status{margin-left:auto;font-size:11px;font-weight:750;letter-spacing:.35px;padding:5px 8px;border-radius:999px;background:#eef3f7;color:#587086}
+.status.risk{background:var(--redbg);color:var(--red)}.status.safe{background:var(--greenbg);color:var(--green)}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);padding:18px;gap:0}.node{position:relative;text-align:center;padding:7px 4px 4px}
+.node:not(:last-child):after{content:"";position:absolute;top:20px;right:-50%;width:100%;height:1px;background:#cbdbe8;z-index:0}
+.circle{position:relative;z-index:1;margin:auto;width:29px;height:29px;border-radius:50%;border:1.5px solid #a9c1d5;background:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;color:#648099}
+.node.done .circle{background:#e8f6ef;border-color:#68b58e;color:#18794e}.node.fail .circle{background:#fff0f2;border-color:#d66b7c;color:#b4233a}.node.recover .circle{background:#eaf3fb;border-color:#65a0d0;color:#215f96}
+.node .name{font-size:11px;margin-top:7px;color:#536d83}.node.done .name{color:#284d68}.node.fail .name{color:#9c2638;font-weight:650}
+.stores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 18px 18px}.store{min-height:108px;border:1px solid #dce7ef;border-radius:10px;padding:12px;background:#fff}
+.store-top{display:flex;align-items:center;gap:8px;margin-bottom:12px}.icon{width:25px;height:25px;border-radius:6px;background:#edf4fa;color:#3572a6;display:grid;place-items:center;font-weight:800;font-size:11px}
+.store-name{font-size:12px;font-weight:700}.kv{display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:4px 0;color:#61788c}.kv b{color:#25435e;font-weight:650}
+.tag{font-size:10px;font-weight:750;border-radius:999px;padding:3px 7px}.tag.good{background:var(--greenbg);color:var(--green)}.tag.bad{background:var(--redbg);color:var(--red)}.tag.wait{background:#f0f4f7;color:#6d8193}
+.event{margin:0 18px 18px;border-radius:10px;border:1px solid #dbe7f0;background:#f8fbfd;padding:12px 13px;display:flex;align-items:flex-start;gap:10px;min-height:58px}
+.event .mark{font-size:14px;font-weight:900;color:#688197}.event strong{display:block;font-size:12px;margin-bottom:3px}.event span{font-size:11px;color:#6c8194}
+.event.bad{background:#fff7f8;border-color:#f0cbd1}.event.bad .mark,.event.bad strong{color:#aa293d}
+.event.good{background:#f2faf6;border-color:#c9e9d8}.event.good .mark,.event.good strong{color:#18794e}
+.impact{margin-top:18px;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:none}
+.impact.show{display:block}.impact-head{padding:13px 16px;border-bottom:1px solid var(--line);font-size:12px;font-weight:750;background:#fafcfe}
+.rows{display:grid;grid-template-columns:150px repeat(4,1fr)}.cell{padding:13px 15px;border-right:1px solid #e3ecf3;border-bottom:1px solid #e3ecf3;font-size:11px;min-height:62px}
+.cell:nth-child(5n){border-right:0}.cell.label{font-weight:750;background:#fbfcfd}.cell .big{display:block;font-size:17px;font-weight:760;margin-bottom:2px;color:#173f61}.cell .small{color:#71869a}
+.legacyrow .big{color:#a32b3d}.cvmrow .big{color:#176e4a}.legacyrow .label{border-left:3px solid #c8485a}.cvmrow .label{border-left:3px solid #3a80b8}
+.footer{display:flex;justify-content:space-between;color:#8a9bab;font-size:10px;margin-top:10px}
+
+.memory{margin:0 18px 16px;padding:12px 14px;border:1px solid #cfe0ee;border-radius:10px;background:#f7fbfe}
+.memory-title{font-size:10px;text-transform:uppercase;letter-spacing:.55px;font-weight:800;color:#6a8297;margin-bottom:10px}
+.memory-track{display:flex;align-items:center}
+.memory-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#71879a;white-space:nowrap}
+.memory-dot{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;border:1px solid #bdd0df;background:white;color:#7890a3;font-size:9px;font-weight:800}
+.memory-line{height:1px;background:#cbdce9;flex:1;margin:0 7px}
+.memory-item.saved{color:#176e4a;font-weight:700}.memory-item.saved .memory-dot{background:#e6f5ed;border-color:#70b794;color:#176e4a}
+.memory-item.current{color:#245f97;font-weight:700}.memory-item.current .memory-dot{background:#e8f2fb;border-color:#72a7d2;color:#245f97}
+.memory-item.reversed{color:#9a6700;font-weight:700}.memory-item.reversed .memory-dot{background:#fff5df;border-color:#d7b86d;color:#9a6700}
+.memory-note{margin-top:9px;padding-top:8px;border-top:1px solid #deebf4;color:#61798d;font-size:10.5px}
+@media(max-width:900px){.compare{grid-template-columns:1fr}.rows{grid-template-columns:110px repeat(4,1fr)}}
+</style></head>
+<body><div class="app">
+<header><div class="brand">CVM</div><div class="spacer"></div><div class="pill">Claims demo</div></header>
+<main>
+ <div class="bar"><div><h1>Claim CLM-20491</h1><div class="claim">Settlement amount · $8,450</div></div>
+  <div class="controls"><button onclick="resetAll()">Reset both</button></div>
+ </div>
+ <div class="compare">
+  <section class="panel">
+   <div class="panel-head"><strong>Standard execution</strong><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><span id="ls" class="status">READY</span><button class="primary" id="lrun" onclick="runLegacy()">Run</button></div></div>
+   <div class="flow" id="lf"></div>
+   <div class="memory" id="lmemory">
+    <div class="memory-title">Transaction progress</div>
+    <div class="memory-track">
+      <div class="memory-item" id="lmclaim"><span class="memory-dot">1</span><span>Claim</span></div>
+      <div class="memory-line"></div>
+      <div class="memory-item" id="lmpay"><span class="memory-dot">2</span><span>Payment</span></div>
+      <div class="memory-line"></div>
+      <div class="memory-item" id="lmcust"><span class="memory-dot">3</span><span>Customer</span></div>
+    </div>
+    <div class="memory-note" id="lmnote">Transaction progress across business systems.</div>
+   </div>
+   <div class="stores" id="lstores"></div>
+   <div class="event" id="le"><div class="mark">·</div><div><strong>Ready</strong><span>Transaction has not started.</span></div></div>
+  </section>
+  <section class="panel cvm">
+   <div class="panel-head"><strong>CVM</strong><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><select id="cscenario" aria-label="CVM scenario" style="border:1px solid #c8d9e8;border-radius:8px;padding:8px 9px;color:#31536f;background:white;font-size:11px">
+<option value="resume">Continue safely</option>
+<option value="reverse">Roll back safely</option>
+</select><span id="cs" class="status">READY</span><button class="primary" id="crun" onclick="runCVM()">Run</button></div></div>
+   <div class="flow" id="cf"></div>
+   <div class="memory" id="memory">
+    <div class="memory-title">Transaction progress</div>
+    <div class="memory-track">
+      <div class="memory-item" id="mclaim"><span class="memory-dot">1</span><span>Claim</span></div>
+      <div class="memory-line"></div>
+      <div class="memory-item" id="mpay"><span class="memory-dot">2</span><span>Payment</span></div>
+      <div class="memory-line"></div>
+      <div class="memory-item" id="mcust"><span class="memory-dot">3</span><span>Customer</span></div>
+    </div>
+    <div class="memory-note" id="mnote">CVM keeps track of each completed business action.</div>
+   </div>
+   <div class="stores" id="cstores"></div>
+   <div class="event" id="ce"><div class="mark">·</div><div><strong>Ready</strong><span>Transaction has not started.</span></div></div>
+  </section>
+ </div>
+ <section class="impact" id="impact">
+  <div class="impact-head">Business impact <span style="font-weight:500;color:#7a8ea1">· illustrative at 10,000 transactions/day and 1% affected transactions</span></div>
+  <div class="rows">
+   <div class="cell"></div><div class="cell"><span class="small">Duplicate exposure</span></div><div class="cell"><span class="small">Manual cases</span></div><div class="cell"><span class="small">Resolution</span></div><div class="cell"><span class="small">Customer impact</span></div>
+   <div class="cell label legacyrow">Standard</div><div class="cell legacyrow"><span class="big">$845K</span><span class="small">potential/day</span></div><div class="cell legacyrow"><span class="big">100</span><span class="small">cases/day</span></div><div class="cell legacyrow"><span class="big">Hours</span><span class="small">reconcile + repair</span></div><div class="cell legacyrow"><span class="big">100</span><span class="small">affected/day</span></div>
+   <div class="cell label cvmrow">CVM</div><div class="cell cvmrow"><span class="big">$0</span><span class="small">duplicate exposure</span></div><div class="cell cvmrow"><span class="big">0</span><span class="small">routine cases</span></div><div class="cell cvmrow"><span class="big">Seconds</span><span class="small">automatic recovery</span></div><div class="cell cvmrow"><span class="big">0</span><span class="small">from this failure</span></div>
+  </div>
+ </section>
+ <div class="footer"><span>Demo data</span><span>Insurance claims workflow</span></div>
+</main></div>
+<script>
+const steps=["Validate","Claims DB","Payment","Customer"];
+let lstate="ready", cstate="ready";
+let timers=[];
+
+function later(fn,ms){let t=setTimeout(fn,ms);timers.push(t)}
+function clearTimers(){timers.forEach(clearTimeout);timers=[]}
+
+function flow(id,state){
+ const el=document.getElementById(id);
+ el.innerHTML=steps.map((n,i)=>{
+  let c="";
+  if(state==="validate") c=i===0?"done":"";
+  if(state==="claim") c=i<2?"done":"";
+  if(state==="payment") c=i<3?"done":"";
+  if(state==="fail") c=i<3?"done":i===3?"fail":"";
+  if(state==="complete") c="done";
+  if(state==="duplicate") c=i<3?"done":i===3?"fail":"";
+  return `<div class="node ${c}"><div class="circle">${c==="done"?"✓":c==="fail"?"!":i+1}</div><div class="name">${n}</div></div>`
+ }).join("");
+}
+function storeHTML(state, mode){
+ let validated=["validate","claim","payment","fail","complete","duplicate"].includes(state);
+ let claimDone=["claim","payment","fail","complete","duplicate"].includes(state);
+ let paid=["payment","fail","complete","duplicate"].includes(state);
+ let completed=state==="complete";
+ let duplicate=state==="duplicate";
+ return `
+ <div class="store"><div class="store-top"><div class="icon">C</div><div class="store-name">Claims</div></div>
+ <div class="kv"><span>Status</span><b>${completed?"Closed":claimDone?"Approved":"Open"}</b></div>
+ <div class="kv"><span>Settlement</span><b>${claimDone?"$8,450":"—"}</b></div></div>
+ <div class="store"><div class="store-top"><div class="icon">$</div><div class="store-name">Payments</div></div>
+ <div class="kv"><span>Payments</span><b>${duplicate?"2":paid?"1":"0"}</b></div>
+ <div class="kv"><span>Total</span><b>${duplicate?"$16,900":paid?"$8,450":"$0"}</b></div></div>
+ <div class="store"><div class="store-top"><div class="icon">U</div><div class="store-name">Customer</div></div>
+ <div class="kv"><span>Notification</span><b>${completed?"Sent":"Pending"}</b></div>
+ <div class="kv"><span>Case</span><span class="tag ${completed?"good":state==="fail"||duplicate?"bad":"wait"}">${completed?"Complete":state==="fail"||duplicate?"Incomplete":"Waiting"}</span></div></div>`;
+}
+function renderLegacy(){flow("lf",lstate);document.getElementById("lstores").innerHTML=storeHTML(lstate,"legacy")}
+function renderCVM(){flow("cf",cstate);document.getElementById("cstores").innerHTML=storeHTML(cstate,"cvm")}
+function ev(id,kind,title,body){document.getElementById(id).className="event "+kind;document.getElementById(id).innerHTML=`<div class="mark">${kind==="good"?"✓":kind==="bad"?"!":"·"}</div><div><strong>${title}</strong><span>${body}</span></div>`}
+function stat(id,text,kind=""){let e=document.getElementById(id);e.textContent=text;e.className="status "+kind}
+function showImpact(){document.getElementById("impact").className="impact show"}
+
+function resetAll(){
+ clearTimers();lstate=cstate="ready";renderLegacy();renderCVM();
+ stat("ls","READY");stat("cs","READY");
+ ev("le","","Ready","Transaction has not started.");
+ ev("ce","","Ready","Transaction has not started.");
+ document.getElementById("impact").className="impact";
+ document.getElementById("lrun").disabled=false;document.getElementById("crun").disabled=false;if(document.getElementById("cscenario"))document.getElementById("cscenario").disabled=false;if(document.getElementById("mclaim"))memory();if(document.getElementById("lmclaim"))legacyMemory();
+}
+
+function legacyMemory(claim="",pay="",cust="",note="Transaction progress across business systems."){
+ [["lmclaim",claim],["lmpay",pay],["lmcust",cust]].forEach(([id,c])=>document.getElementById(id).className="memory-item "+c);
+ document.getElementById("lmclaim").querySelector(".memory-dot").textContent=claim==="saved"?"✓":"1";
+ document.getElementById("lmpay").querySelector(".memory-dot").textContent=pay==="saved"?"✓":"2";
+ document.getElementById("lmcust").querySelector(".memory-dot").textContent=cust==="saved"?"✓":"3";
+ document.getElementById("lmnote").textContent=note;
+}
+function runLegacy(){
+ document.getElementById("lrun").disabled=true;stat("ls","RUNNING");
+ legacyMemory("current","","","Transaction started.");
+ ev("le","","Validating","Checking the claim before settlement.");
+ lstate="validate";renderLegacy();
+
+ later(()=>{lstate="claim";renderLegacy();legacyMemory("saved","current","","Claim update completed.");ev("le","","Claim approved","Claims system updated for an $8,450 settlement.");},1600);
+ later(()=>{lstate="payment";renderLegacy();legacyMemory("saved","saved","current","Payment completed. Customer update is next.");ev("le","","Payment sent","$8,450 payment accepted by the payment system.");},3400);
+ later(()=>{lstate="fail";renderLegacy();legacyMemory("saved","saved","current","Customer update failed after the payment completed.");stat("ls","ACTION REQUIRED","risk");ev("le","bad","Customer update failed","The payment succeeded, but the transaction stopped before the customer record was updated.");showImpact();},5400);
+ later(()=>{legacyMemory("saved","saved","current","The workflow is restarted to finish the transaction.");ev("le","bad","Retrying transaction","The application retries the workflow.");stat("ls","RETRYING","risk");},7900);
+ later(()=>{lstate="duplicate";renderLegacy();legacyMemory("saved","saved","current","The payment step ran again during the retry.");stat("ls","DUPLICATE PAYMENT","risk");ev("le","bad","Second payment created","The payment step ran again. Total sent: $16,900.");},10400);
+ later(()=>{document.getElementById("lrun").disabled=false;},10900);
+}
+function memory(claim="",pay="",cust="",note="CVM keeps track of each completed business action."){
+ [["mclaim",claim],["mpay",pay],["mcust",cust]].forEach(([id,c])=>document.getElementById(id).className="memory-item "+c);
+ document.getElementById("mclaim").querySelector(".memory-dot").textContent=claim==="saved"?"✓":claim==="reversed"?"↶":"1";
+ document.getElementById("mpay").querySelector(".memory-dot").textContent=pay==="saved"?"✓":pay==="reversed"?"↶":"2";
+ document.getElementById("mcust").querySelector(".memory-dot").textContent=cust==="saved"?"✓":"3";
+ document.getElementById("mnote").textContent=note;
+}
+function runCVM(){
+ const scenario=document.getElementById("cscenario").value;
+ document.getElementById("crun").disabled=true;document.getElementById("cscenario").disabled=true;stat("cs","RUNNING");
+ memory("current","","","Transaction started.");
+ ev("ce","","Validating","Checking the claim before settlement.");
+ cstate="validate";renderCVM();
+
+ later(()=>{cstate="claim";renderCVM();memory("saved","current","","Claim update completed.");ev("ce","","Claim approved","Claims system updated for an $8,450 settlement.");},1600);
+ later(()=>{cstate="payment";renderCVM();memory("saved","saved","current","Payment completed. Customer update is next.");ev("ce","","Payment sent","$8,450 payment accepted by the payment system.");},3400);
+
+ if(scenario==="resume"){
+   later(()=>{cstate="fail";renderCVM();memory("saved","saved","current","Customer update failed after the payment completed.");stat("cs","RECOVERING","safe");ev("ce","good","Customer update failed","CVM knows the payment already completed.");showImpact();},5400);
+   later(()=>{memory("saved","saved","current","Payment is not repeated. Only the customer update resumes.");ev("ce","good","Resuming","Only the unfinished customer update resumes.");},7900);
+   later(()=>{cstate="complete";renderCVM();memory("saved","saved","saved","Transaction complete.");stat("cs","COMPLETE","safe");ev("ce","good","Completed","One payment. Claims and customer records are consistent.");},10400);
+ } else {
+   later(()=>{cstate="fail";renderCVM();memory("saved","saved","current","The transaction cannot safely complete after payment.");stat("cs","ROLLING BACK","safe");ev("ce","good","Final step cannot complete","CVM knows which business actions already completed.");showImpact();},5400);
+   later(()=>{memory("saved","reversed","current","The completed $8,450 payment is being reversed.");ev("ce","good","Reversing payment","CVM safely reverses the completed payment.");},7900);
+   later(()=>{memory("reversed","reversed","","The claim update is being restored to its prior state.");ev("ce","good","Restoring claim","CVM reverses the earlier claim change.");},10100);
+   later(()=>{cstate="ready";renderCVM();memory("reversed","reversed","","Transaction returned to its prior safe state.");stat("cs","ROLLED BACK","safe");ev("ce","good","Rolled back","Payment reversed. Claim restored. Systems are consistent.");},12300);
+ }
+ later(()=>{document.getElementById("crun").disabled=false;document.getElementById("cscenario").disabled=false;},12800);
+}
+resetAll();
+</script></body></html>
