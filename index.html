@@ -54,10 +54,26 @@ button:hover{background:#f5f9fc}.primary{background:#245f97;color:#fff;border-co
 .memory-item.current{color:#245f97;font-weight:700}.memory-item.current .memory-dot{background:#e8f2fb;border-color:#72a7d2;color:#245f97}
 .memory-item.reversed{color:#9a6700;font-weight:700}.memory-item.reversed .memory-dot{background:#fff5df;border-color:#d7b86d;color:#9a6700}
 .memory-note{margin-top:9px;padding-top:8px;border-top:1px solid #deebf4;color:#61798d;font-size:10.5px}
+
+.spotlight{display:none;margin:0 18px 18px;border-radius:12px;padding:16px 17px;animation:rise .28s ease-out}
+.spotlight.show{display:block}.spotlight.problem{background:#fff5f6;border:1px solid #e9b8c0;box-shadow:0 8px 22px rgba(150,36,55,.08)}
+.spotlight.recovery{background:#eef7fd;border:1px solid #a9cee9;box-shadow:0 8px 24px rgba(37,95,151,.10)}
+.spotlight.result{background:#eef9f3;border:1px solid #b7dfc9;box-shadow:0 8px 24px rgba(24,121,78,.09)}
+.spot-kicker{font-size:10px;letter-spacing:.7px;text-transform:uppercase;font-weight:850;margin-bottom:7px;color:#7b8fa1}
+.problem .spot-kicker{color:#a62d40}.recovery .spot-kicker{color:#27699f}.result .spot-kicker{color:#18794e}
+.spot-title{font-size:16px;line-height:1.25;font-weight:800;color:#173d5d;margin-bottom:12px}
+.problem .spot-title{color:#8f2335}.spot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.spot-item{background:rgba(255,255,255,.72);border:1px solid rgba(140,170,195,.3);border-radius:8px;padding:9px 10px;font-size:10px;color:#60788c}
+.spot-item b{display:block;font-size:12px;color:#234761;margin-top:2px}.spot-item.bad b{color:#a1263a}.spot-item.good b{color:#18794e}
+.spot-action{border-top:1px solid rgba(115,153,181,.25);padding-top:10px;font-size:11px;color:#4e6b82;display:flex;align-items:center;gap:9px}
+.action-chip{display:inline-block;border-radius:999px;padding:5px 8px;background:#dbeefa;color:#245f97;font-weight:800;font-size:10px}
+.problem .action-chip{background:#ffe0e5;color:#a1263a}.result .action-chip{background:#dcefe5;color:#18794e}
+.strike{text-decoration:line-through;color:#91a0ad}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 @media(max-width:900px){.compare{grid-template-columns:1fr}.rows{grid-template-columns:110px repeat(4,1fr)}}
 </style></head>
 <body><div class="app">
-<header><div class="brand">CVM</div><div class="spacer"></div><div class="pill">Claims demo</div></header>
+<header><div class="brand">Cognitive Virtual Machine</div><div class="spacer"></div><div class="pill">Claims demo</div></header>
 <main>
  <div class="bar"><div><h1>Claim CLM-20491</h1><div class="claim">Settlement amount · $8,450</div></div>
   <div class="controls"><button onclick="resetAll()">Reset both</button></div>
@@ -79,9 +95,10 @@ button:hover{background:#f5f9fc}.primary{background:#245f97;color:#fff;border-co
    </div>
    <div class="stores" id="lstores"></div>
    <div class="event" id="le"><div class="mark">·</div><div><strong>Ready</strong><span>Transaction has not started.</span></div></div>
+   <div class="spotlight" id="lspot"></div>
   </section>
   <section class="panel cvm">
-   <div class="panel-head"><strong>CVM</strong><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><select id="cscenario" aria-label="CVM scenario" style="border:1px solid #c8d9e8;border-radius:8px;padding:8px 9px;color:#31536f;background:white;font-size:11px">
+   <div class="panel-head"><strong>Cognitive Virtual Machine</strong><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><select id="cscenario" aria-label="CVM scenario" style="border:1px solid #c8d9e8;border-radius:8px;padding:8px 9px;color:#31536f;background:white;font-size:11px">
 <option value="resume">Continue safely</option>
 <option value="reverse">Roll back safely</option>
 </select><span id="cs" class="status">READY</span><button class="primary" id="crun" onclick="runCVM()">Run</button></div></div>
@@ -95,10 +112,11 @@ button:hover{background:#f5f9fc}.primary{background:#245f97;color:#fff;border-co
       <div class="memory-line"></div>
       <div class="memory-item" id="mcust"><span class="memory-dot">3</span><span>Customer</span></div>
     </div>
-    <div class="memory-note" id="mnote">CVM keeps track of each completed business action.</div>
+    <div class="memory-note" id="mnote">Cognitive Virtual Machine keeps track of each completed business action.</div>
    </div>
    <div class="stores" id="cstores"></div>
    <div class="event" id="ce"><div class="mark">·</div><div><strong>Ready</strong><span>Transaction has not started.</span></div></div>
+   <div class="spotlight" id="cspot"></div>
   </section>
  </div>
  <section class="impact" id="impact">
@@ -106,7 +124,7 @@ button:hover{background:#f5f9fc}.primary{background:#245f97;color:#fff;border-co
   <div class="rows">
    <div class="cell"></div><div class="cell"><span class="small">Duplicate exposure</span></div><div class="cell"><span class="small">Manual cases</span></div><div class="cell"><span class="small">Resolution</span></div><div class="cell"><span class="small">Customer impact</span></div>
    <div class="cell label legacyrow">Standard</div><div class="cell legacyrow"><span class="big">$845K</span><span class="small">potential/day</span></div><div class="cell legacyrow"><span class="big">100</span><span class="small">cases/day</span></div><div class="cell legacyrow"><span class="big">Hours</span><span class="small">reconcile + repair</span></div><div class="cell legacyrow"><span class="big">100</span><span class="small">affected/day</span></div>
-   <div class="cell label cvmrow">CVM</div><div class="cell cvmrow"><span class="big">$0</span><span class="small">duplicate exposure</span></div><div class="cell cvmrow"><span class="big">0</span><span class="small">routine cases</span></div><div class="cell cvmrow"><span class="big">Seconds</span><span class="small">automatic recovery</span></div><div class="cell cvmrow"><span class="big">0</span><span class="small">from this failure</span></div>
+   <div class="cell label cvmrow">Cognitive VM</div><div class="cell cvmrow"><span class="big">$0</span><span class="small">duplicate exposure</span></div><div class="cell cvmrow"><span class="big">0</span><span class="small">routine cases</span></div><div class="cell cvmrow"><span class="big">Seconds</span><span class="small">automatic recovery</span></div><div class="cell cvmrow"><span class="big">0</span><span class="small">from this failure</span></div>
   </div>
  </section>
  <div class="footer"><span>Demo data</span><span>Insurance claims workflow</span></div>
@@ -155,12 +173,20 @@ function ev(id,kind,title,body){document.getElementById(id).className="event "+k
 function stat(id,text,kind=""){let e=document.getElementById(id);e.textContent=text;e.className="status "+kind}
 function showImpact(){document.getElementById("impact").className="impact show"}
 
+function spot(id,kind,kicker,title,items,action=""){
+ let e=document.getElementById(id);
+ e.className="spotlight show "+kind;
+ e.innerHTML=`<div class="spot-kicker">${kicker}</div><div class="spot-title">${title}</div>
+ <div class="spot-grid">${items.map(x=>`<div class="spot-item ${x[2]||""}"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("")}</div>
+ ${action?`<div class="spot-action">${action}</div>`:""}`;
+}
+function hideSpot(id){let e=document.getElementById(id);e.className="spotlight";e.innerHTML=""}
 function resetAll(){
  clearTimers();lstate=cstate="ready";renderLegacy();renderCVM();
  stat("ls","READY");stat("cs","READY");
  ev("le","","Ready","Transaction has not started.");
  ev("ce","","Ready","Transaction has not started.");
- document.getElementById("impact").className="impact";
+ document.getElementById("impact").className="impact";hideSpot("lspot");hideSpot("cspot");
  document.getElementById("lrun").disabled=false;document.getElementById("crun").disabled=false;if(document.getElementById("cscenario"))document.getElementById("cscenario").disabled=false;if(document.getElementById("mclaim"))memory();if(document.getElementById("lmclaim"))legacyMemory();
 }
 
@@ -172,19 +198,37 @@ function legacyMemory(claim="",pay="",cust="",note="Transaction progress across 
  document.getElementById("lmnote").textContent=note;
 }
 function runLegacy(){
- document.getElementById("lrun").disabled=true;stat("ls","RUNNING");
+ document.getElementById("lrun").disabled=true;stat("ls","RUNNING");hideSpot("lspot");
  legacyMemory("current","","","Transaction started.");
- ev("le","","Validating","Checking the claim before settlement.");
- lstate="validate";renderLegacy();
+ ev("le","","Validating","Checking the claim before settlement.");lstate="validate";renderLegacy();
 
- later(()=>{lstate="claim";renderLegacy();legacyMemory("saved","current","","Claim update completed.");ev("le","","Claim approved","Claims system updated for an $8,450 settlement.");},1600);
- later(()=>{lstate="payment";renderLegacy();legacyMemory("saved","saved","current","Payment completed. Customer update is next.");ev("le","","Payment sent","$8,450 payment accepted by the payment system.");},3400);
- later(()=>{lstate="fail";renderLegacy();legacyMemory("saved","saved","current","Customer update failed after the payment completed.");stat("ls","ACTION REQUIRED","risk");ev("le","bad","Customer update failed","The payment succeeded, but the transaction stopped before the customer record was updated.");showImpact();},5400);
- later(()=>{legacyMemory("saved","saved","current","The workflow is restarted to finish the transaction.");ev("le","bad","Retrying transaction","The application retries the workflow.");stat("ls","RETRYING","risk");},7900);
- later(()=>{lstate="duplicate";renderLegacy();legacyMemory("saved","saved","current","The payment step ran again during the retry.");stat("ls","DUPLICATE PAYMENT","risk");ev("le","bad","Second payment created","The payment step ran again. Total sent: $16,900.");},10400);
- later(()=>{document.getElementById("lrun").disabled=false;},10900);
+ later(()=>{lstate="claim";renderLegacy();legacyMemory("saved","current","","Claim update completed.");ev("le","","Claim approved","Claims system updated for an $8,450 settlement.");},2200);
+ later(()=>{lstate="payment";renderLegacy();legacyMemory("saved","saved","current","Payment completed. Customer update is next.");ev("le","","Payment sent","$8,450 payment accepted by the payment system.");},4800);
+ later(()=>{
+   lstate="fail";renderLegacy();legacyMemory("saved","saved","current","Customer update failed after the payment completed.");stat("ls","PAUSED","risk");
+   ev("le","bad","Customer update failed","The transaction is only partially complete.");
+   spot("lspot","problem","Partial transaction","Payment succeeded. Customer update failed.",
+    [["Claim","Updated","good"],["Payment","$8,450 sent","good"],["Customer","Not updated","bad"]],
+    `<span class="action-chip">Risk</span><span>A full retry can issue the payment again.</span>`);
+   showImpact();
+ },7600);
+ later(()=>{
+   stat("ls","RETRYING","risk");legacyMemory("saved","saved","current","The workflow is restarted to finish the transaction.");
+   spot("lspot","problem","Retry","Restarting the transaction",
+    [["Claim","Already updated","good"],["Payment","Already sent","good"],["Customer","Still pending","bad"]],
+    `<span class="action-chip">Full retry</span><span>Previously completed actions may run again.</span>`);
+   ev("le","bad","Retrying transaction","The application restarts the workflow.");
+ },11200);
+ later(()=>{
+   lstate="duplicate";renderLegacy();stat("ls","DUPLICATE PAYMENT","risk");
+   spot("lspot","problem","Business impact","$16,900 sent on an $8,450 claim",
+    [["Payment 1","$8,450","good"],["Payment 2","$8,450","bad"],["Customer","Not updated","bad"]],
+    `<span class="action-chip">Manual action</span><span>Reconcile the duplicate payment and repair the customer record.</span>`);
+   ev("le","bad","Second payment created","The payment step ran again.");
+ },14800);
+ later(()=>{document.getElementById("lrun").disabled=false;},15400);
 }
-function memory(claim="",pay="",cust="",note="CVM keeps track of each completed business action."){
+function memory(claim="",pay="",cust="",note="Cognitive Virtual Machine keeps track of each completed business action."){
  [["mclaim",claim],["mpay",pay],["mcust",cust]].forEach(([id,c])=>document.getElementById(id).className="memory-item "+c);
  document.getElementById("mclaim").querySelector(".memory-dot").textContent=claim==="saved"?"✓":claim==="reversed"?"↶":"1";
  document.getElementById("mpay").querySelector(".memory-dot").textContent=pay==="saved"?"✓":pay==="reversed"?"↶":"2";
@@ -193,25 +237,68 @@ function memory(claim="",pay="",cust="",note="CVM keeps track of each completed 
 }
 function runCVM(){
  const scenario=document.getElementById("cscenario").value;
- document.getElementById("crun").disabled=true;document.getElementById("cscenario").disabled=true;stat("cs","RUNNING");
+ document.getElementById("crun").disabled=true;document.getElementById("cscenario").disabled=true;stat("cs","RUNNING");hideSpot("cspot");
  memory("current","","","Transaction started.");
- ev("ce","","Validating","Checking the claim before settlement.");
- cstate="validate";renderCVM();
+ ev("ce","","Validating","Checking the claim before settlement.");cstate="validate";renderCVM();
 
- later(()=>{cstate="claim";renderCVM();memory("saved","current","","Claim update completed.");ev("ce","","Claim approved","Claims system updated for an $8,450 settlement.");},1600);
- later(()=>{cstate="payment";renderCVM();memory("saved","saved","current","Payment completed. Customer update is next.");ev("ce","","Payment sent","$8,450 payment accepted by the payment system.");},3400);
+ later(()=>{cstate="claim";renderCVM();memory("saved","current","","Claim update completed.");ev("ce","","Claim approved","Claims system updated for an $8,450 settlement.");},2200);
+ later(()=>{cstate="payment";renderCVM();memory("saved","saved","current","Payment completed. Customer update is next.");ev("ce","","Payment sent","$8,450 payment accepted by the payment system.");},4800);
 
  if(scenario==="resume"){
-   later(()=>{cstate="fail";renderCVM();memory("saved","saved","current","Customer update failed after the payment completed.");stat("cs","RECOVERING","safe");ev("ce","good","Customer update failed","CVM knows the payment already completed.");showImpact();},5400);
-   later(()=>{memory("saved","saved","current","Payment is not repeated. Only the customer update resumes.");ev("ce","good","Resuming","Only the unfinished customer update resumes.");},7900);
-   later(()=>{cstate="complete";renderCVM();memory("saved","saved","saved","Transaction complete.");stat("cs","COMPLETE","safe");ev("ce","good","Completed","One payment. Claims and customer records are consistent.");},10400);
+   later(()=>{
+     cstate="fail";renderCVM();memory("saved","saved","current","Customer update failed after the payment completed.");stat("cs","PAUSED","safe");
+     ev("ce","good","Customer update failed","Cognitive Virtual Machine has the transaction state.");
+     spot("cspot","recovery","Recovery","Cognitive Virtual Machine knows what completed.",
+      [["Claim","Updated","good"],["Payment","$8,450 sent","good"],["Customer","Not updated","bad"]],
+      `<span class="action-chip">Recovery plan</span><span class="strike">Repeat payment</span><span>Skip · Resume customer update</span>`);
+     showImpact();
+   },7600);
+   later(()=>{
+     stat("cs","RECOVERING","safe");memory("saved","saved","current","Payment is not repeated. Only the customer update resumes.");
+     spot("cspot","recovery","Recovery in progress","Continuing from the unfinished action",
+      [["Claim","Keep","good"],["Payment","Do not repeat","good"],["Customer","Resume",""]],
+      `<span class="action-chip">Continue</span><span>Only the customer update runs.</span>`);
+     ev("ce","good","Resuming","Only the unfinished customer update resumes.");
+   },11200);
+   later(()=>{
+     cstate="complete";renderCVM();memory("saved","saved","saved","Transaction complete.");stat("cs","COMPLETE","safe");
+     spot("cspot","result","Recovered","Transaction completed safely",
+      [["Payments","1","good"],["Systems","Consistent","good"],["Manual actions","0","good"]],
+      `<span class="action-chip">Complete</span><span>No duplicate payment. No manual repair.</span>`);
+     ev("ce","good","Completed","One payment. Claims and customer records are consistent.");
+   },14800);
  } else {
-   later(()=>{cstate="fail";renderCVM();memory("saved","saved","current","The transaction cannot safely complete after payment.");stat("cs","ROLLING BACK","safe");ev("ce","good","Final step cannot complete","CVM knows which business actions already completed.");showImpact();},5400);
-   later(()=>{memory("saved","reversed","current","The completed $8,450 payment is being reversed.");ev("ce","good","Reversing payment","CVM safely reverses the completed payment.");},7900);
-   later(()=>{memory("reversed","reversed","","The claim update is being restored to its prior state.");ev("ce","good","Restoring claim","CVM reverses the earlier claim change.");},10100);
-   later(()=>{cstate="ready";renderCVM();memory("reversed","reversed","","Transaction returned to its prior safe state.");stat("cs","ROLLED BACK","safe");ev("ce","good","Rolled back","Payment reversed. Claim restored. Systems are consistent.");},12300);
+   later(()=>{
+     cstate="fail";renderCVM();memory("saved","saved","current","The transaction cannot safely complete after payment.");stat("cs","PAUSED","safe");
+     ev("ce","good","Final step cannot complete","Cognitive Virtual Machine has the transaction state.");
+     spot("cspot","recovery","Recovery","Transaction cannot safely complete.",
+      [["Claim","Updated","good"],["Payment","$8,450 sent","good"],["Final step","Failed","bad"]],
+      `<span class="action-chip">Recovery plan</span><span>Reverse payment · Restore claim</span>`);
+     showImpact();
+   },7600);
+   later(()=>{
+     stat("cs","ROLLING BACK","safe");memory("saved","reversed","current","The completed $8,450 payment is being reversed.");
+     spot("cspot","recovery","Rollback in progress","Reversing completed business actions",
+      [["Payment","Reverse $8,450",""],["Claim","Restore next",""],["Customer","No change","good"]],
+      `<span class="action-chip">Rollback</span><span>Return the transaction to its prior safe state.</span>`);
+     ev("ce","good","Reversing payment","The completed payment is reversed.");
+   },11200);
+   later(()=>{
+     memory("reversed","reversed","","The claim update is being restored to its prior state.");
+     spot("cspot","recovery","Rollback in progress","Payment reversed. Restoring claim.",
+      [["Payment","Reversed","good"],["Claim","Restoring",""],["Customer","Unchanged","good"]],
+      `<span class="action-chip">Rollback</span><span>One remaining action.</span>`);
+     ev("ce","good","Restoring claim","The earlier claim change is reversed.");
+   },14200);
+   later(()=>{
+     cstate="ready";renderCVM();memory("reversed","reversed","","Transaction returned to its prior safe state.");stat("cs","ROLLED BACK","safe");
+     spot("cspot","result","Rolled back","Transaction returned to a safe state",
+      [["Payment","Reversed","good"],["Claim","Restored","good"],["Manual actions","0","good"]],
+      `<span class="action-chip">Safe state</span><span>No partial transaction remains.</span>`);
+     ev("ce","good","Rolled back","Payment reversed. Claim restored. Systems are consistent.");
+   },17200);
  }
- later(()=>{document.getElementById("crun").disabled=false;document.getElementById("cscenario").disabled=false;},12800);
+ later(()=>{document.getElementById("crun").disabled=false;document.getElementById("cscenario").disabled=false;},17900);
 }
 resetAll();
 </script></body></html>
